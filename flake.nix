@@ -38,8 +38,6 @@
           default = pkgs.writeShellApplication {
             name = "cia-unix";
             text = ''
-              #!/usr/bin/env bash
-
               # Colors for output
               RED='\033[0;31m'
               BOLD='\033[1m'
