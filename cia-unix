@@ -10,10 +10,10 @@ UNDERLINE='\033[4m'
 NC='\033[0m' # No Color
 
 # Log file
-LOG_FILE="cia-unix.log"
+LOG_FILE="/tmp/cia-unix.log"
 
 # Initialize log
-echo "$(date -u)" > "$LOG_FILE"
+"$(date -u)" > "$LOG_FILE"
 
 # Function to print colored output
 print_color() {
@@ -26,59 +26,6 @@ print_color() {
 log_print() {
     echo "$1" | tee -a "$LOG_FILE"
 }
-
-# Function to handle download dependencies
-download_dep() {
-    read -p "Some $(print_color "$YELLOW" "tools") are missing, do you want to download them? (y/n): " answer
-    if [[ "$answer" =~ ^[Yy]$ ]]; then
-        ./dltools.sh
-    fi
-}
-
-# Function to check if tool exists
-check_tool() {
-    local tool=$1
-    if [[ ! -f "$tool" ]]; then
-        # Try to find in PATH
-        local found=$(which "$tool" 2>/dev/null)
-        if [[ -z "$found" ]]; then
-            return 1
-        fi
-    fi
-    return 0
-}
-
-# Dependencies check
-tools=("./ctrtool" "./ctrdecrypt" "./makerom" "seeddb.bin")
-for tool in "${tools[@]}"; do
-    case $tool in
-        "./ctrtool"|"./ctrdecrypt"|"./makerom")
-            if ! check_tool "$tool"; then
-                if [[ -f "$LOG_FILE" ]]; then
-                    rm "$LOG_FILE"
-                fi
-                download_dep
-                if [[ ! -f "$tool" ]]; then
-                    tool_name="${tool#./}"
-                    print_color "$RED" "$tool_name not found. Make sure it's located in the $(print_color "$UNDERLINE" "same directory")"
-                    exit 1
-                fi
-            fi
-            ;;
-        "seeddb.bin")
-            if [[ ! -f "$tool" ]]; then
-                if [[ -f "$LOG_FILE" ]]; then
-                    rm "$LOG_FILE"
-                fi
-                download_dep
-                if [[ ! -f "$tool" ]]; then
-                    print_color "$RED" "$tool not found. Make sure it's located in the $(print_color "$UNDERLINE" "same directory")"
-                    exit 1
-                fi
-            fi
-            ;;
-    esac
-done
 
 # ROMs presence check
 cia_count=$(ls -1 *.cia 2>/dev/null | wc -l)
@@ -98,8 +45,7 @@ run_tool() {
     local args=("$@")
     
     local output
-    echo "./$name " "${args[@]}"
-    output=$("./$name" "${args[@]}" 2>&1)
+    output=$("$name" "${args[@]}" 2>&1)
     local exit_code=$?
     
     log_print "$output"
@@ -142,8 +88,8 @@ gen_args() {
 # Cache cleanup function
 remove_cache() {
     log_print "Removing cache..."
-    rm -f *-decfirst.cia
-    rm -f *.ncch
+    rm -f ./*-decfirst.cia
+    rm -f ./*.ncch
 }
 
 # 3DS decrypting
@@ -222,7 +168,7 @@ for cia in *.cia; do
         patch_parts=$(ls -1 "${cutn}."*.ncch 2>/dev/null | wc -l)
         gen_args_output=$(gen_args "$cutn" "$patch_parts")
         # Convert string to array
-        args+=($gen_args_output)
+        args+=("$gen_args_output")
         
         run_tool "makerom" "${args[@]}"
         check_decrypt "${cutn} (Patch)" "cia"
@@ -234,7 +180,7 @@ for cia in *.cia; do
         args=("-f" "cia" "-dlc" "-ignoresign" "-target" "p" "-o" "${cutn} (DLC)-decrypted.cia")
         dlc_parts=$(ls -1 "${cutn}."*.ncch 2>/dev/null | wc -l)
         gen_args_output=$(gen_args "$cutn" "$dlc_parts")
-        args+=($gen_args_output)
+        args+=("$gen_args_output")
         
         run_tool "makerom" "${args[@]}"
         check_decrypt "${cutn} (DLC)" "cia"
@@ -256,5 +202,4 @@ for cia in *.cia; do
     remove_cache
 done
 
-log_print "Log saved"
 echo "Log saved to $LOG_FILE"
