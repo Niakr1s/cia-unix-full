@@ -83,7 +83,7 @@
                 local args=("$@")
                 
                 local output
-                output=$("$name" "''${args[@]}" 2>&1)
+                output=$("${additional}/bin/$name" "''${args[@]}" 2>&1)
                 local exit_code=$?
                 
                 log_print "$output"
@@ -182,7 +182,7 @@
                 
                 log_print "Decrypting: $(print_color "$BOLD" "$cia")..."
                 cutn="''${cia%.cia}"
-                content=$(run_tool "ctrtool" "--seeddb=seeddb.bin" "$cia")
+                content=$(run_tool "ctrtool" "--seeddb=${additional}/lib/seeddb.bin" "$cia")
                 
                 # Check CIA type and process accordingly
                 if echo "$content" | grep -qi "T.*d.*00040000"; then
