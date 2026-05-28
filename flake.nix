@@ -16,8 +16,8 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        additional = pkgs.stdenv.mkDerivation {
-          pname = "cia-tools-additional";
+        libcia = pkgs.stdenv.mkDerivation {
+          pname = "libcia";
           version = "0.1.3";
           src = ./.;
 
@@ -32,10 +32,8 @@
       {
 
         packages = {
-          inherit additional;
-
           default = pkgs.writeShellApplication {
-            name = "cia-unix";
+            name = "cia";
             text = ''
               # Colors for output
               RED='\033[0;31m'
@@ -44,7 +42,7 @@
               NC='\033[0m' # No Color
 
               # Log file
-              LOG_FILE="/tmp/cia-unix.log"
+              LOG_FILE="/tmp/cia.log"
 
               # Initialize log
               date -u > "$LOG_FILE"
@@ -81,7 +79,7 @@
                   local args=("$@")
                   
                   local output
-                  output=$("${additional}/bin/$name" "''${args[@]}" 2>&1)
+                  output=$("${libcia}/bin/$name" "''${args[@]}" 2>&1)
                   local exit_code=$?
                   
                   log_print "$output"
@@ -180,7 +178,7 @@
                   
                   log_print "Decrypting: $(print_color "$BOLD" "$cia")..."
                   cutn="''${cia%.cia}"
-                  content=$(run_tool "ctrtool" "--seeddb=${additional}/lib/seeddb.bin" "$cia")
+                  content=$(run_tool "ctrtool" "--seeddb=${libcia}/lib/seeddb.bin" "$cia")
                   
                   # Check CIA type and process accordingly
                   if echo "$content" | grep -qi "T.*d.*00040000"; then
