@@ -67,7 +67,7 @@ Dir["*.3ds"].each do |ds|
             i = 0
         when "#{dsn}.Manual.ncch"
             i = 1
-        when "#{dsn}.DownloadPlay.ncch"
+        when "#{dsn}.Download Play.ncch"
             i = 2
         when "#{dsn}.Partition4.ncch"
             i = 3
