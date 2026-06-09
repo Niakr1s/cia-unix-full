@@ -49,7 +49,14 @@ Dir["*.3ds"].each do |ds|
 
     i : UInt8 = 0
     dsn : String = ds.chomp ".3ds"
-    args = ["-f", "cci", "-ignoresign", "-target", "p", "-o", "#{dsn}-decrypted.3ds"]
+
+    dsn_dec : String = "#{dsn}-decrypted.3ds"
+    if File.exists? dsn_dec
+      puts "Skipping #{dsn}, already decrypted"
+      next
+    end
+
+    args = ["-f", "cci", "-ignoresign", "-target", "p", "-o", "#{dsn_dec}"]
 
     puts "Decrypting: #{ds.colorize.mode(:bold)}..."
     run_tool("ctrdecrypt", [ds])
