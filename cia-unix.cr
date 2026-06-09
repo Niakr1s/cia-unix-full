@@ -82,7 +82,7 @@ Dir["*.3ds"].each do |ds|
         end
         args += ["-i", "#{ncch}:#{i}:#{i}"]
     end
-    puts "Building decrypted #{dsn} 3DS..., running makerom with args: #{args}"
+    puts "Building decrypted #{dsn} 3DS..."
     run_tool("makerom", args)
     check_decrypt(dsn, "3ds")
     remove_cache
