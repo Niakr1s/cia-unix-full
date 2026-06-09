@@ -1,6 +1,6 @@
 require "colorize"
 
-LOG = File.new "cia-unix.log", "w"
+LOG = File.new "/tmp/cia-unix.log", "w"
 LOG.puts Time.utc.to_s
 
 # dependencies check
@@ -9,13 +9,13 @@ tools.each do |tool|
     case tool
     when "ctrtool", "ctrdecrypt", "makerom"
         if !File.exists? %x[which #{tool}].chomp
-            LOG.delete if File.exists? "cia-unix.log"
+            LOG.delete if File.exists? "/tmp/cia-unix.log"
             download_dep
             abort "#{tool.lchop("./").colorize.mode(:bold)} not found. Make sure it's located in the #{"same directory".colorize.mode(:underline)}" if !File.exists? tool
         end
     when "seeddb.bin"
         if !File.exists? tool
-            LOG.delete if File.exists? "cia-unix.log"
+            LOG.delete if File.exists? "/tmp/cia-unix.log"
             download_dep
             abort "#{tool.colorize.mode(:bold)} not found. Make sure it's located in the #{"same directory".colorize.mode(:underline)}" if !File.exists? tool
         end
@@ -31,7 +31,7 @@ end
 
 # roms presence check
 if Dir["*.cia"].size.zero? && Dir["*.3ds"].size.zero?
-    LOG.delete if File.exists? "cia-unix.log"
+    LOG.delete if File.exists? "/tmp/cia-unix.log"
     abort "No #{"CIA".colorize.mode(:bold)}/#{"3DS".colorize.mode(:bold)} roms were found."
 end
 
