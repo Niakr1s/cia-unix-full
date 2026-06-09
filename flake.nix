@@ -45,8 +45,7 @@
 
               wrapProgram $out/bin/cia-unix \
                 --prefix PATH : ${libcia}/bin \
-                --prefix PATH : ${libcia}/lib \
-                --set SEEDDB_BIN_PATH ${libcia}/lib/seeddb.bin
+                --prefix PATH : ${libcia}/lib
             '';
 
 
