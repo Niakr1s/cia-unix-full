@@ -3,32 +3,6 @@ require "colorize"
 LOG = File.new "/tmp/cia-unix.log", "w"
 LOG.puts Time.utc.to_s
 
-# dependencies check
-tools = ["ctrtool", "ctrdecrypt", "makerom", "seeddb.bin"]
-tools.each do |tool|
-    case tool
-    when "ctrtool", "ctrdecrypt", "makerom"
-        if !File.exists? %x[which #{tool}].chomp
-            LOG.delete if File.exists? "/tmp/cia-unix.log"
-            download_dep
-            abort "#{tool.lchop("./").colorize.mode(:bold)} not found. Make sure it's located in the #{"same directory".colorize.mode(:underline)}" if !File.exists? tool
-        end
-    when "seeddb.bin"
-        if !File.exists? tool
-            LOG.delete if File.exists? "/tmp/cia-unix.log"
-            download_dep
-            abort "#{tool.colorize.mode(:bold)} not found. Make sure it's located in the #{"same directory".colorize.mode(:underline)}" if !File.exists? tool
-        end
-    end
-end
-
-def download_dep
-    print "Some #{"tools".colorize.mode(:bold)} are missing, do you want to download them? (y/n): "
-    if ["y", "Y"].includes? gets.to_s
-        # system "./dltools.sh"
-    end 
-end
-
 # roms presence check
 if Dir["*.cia"].size.zero? && Dir["*.3ds"].size.zero?
     LOG.delete if File.exists? "/tmp/cia-unix.log"
