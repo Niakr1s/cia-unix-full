@@ -4,10 +4,10 @@ LOG = File.new "cia-unix.log", "w"
 LOG.puts Time.utc.to_s
 
 # dependencies check
-tools = ["./ctrtool", "./ctrdecrypt", "./makerom", "seeddb.bin"]
+tools = ["ctrtool", "ctrdecrypt", "makerom", "seeddb.bin"]
 tools.each do |tool|
     case tool
-    when "./ctrtool", "./ctrdecrypt", "./makerom"
+    when "ctrtool", "ctrdecrypt", "makerom"
         if !File.exists? %x[which #{tool}].chomp
             LOG.delete if File.exists? "cia-unix.log"
             download_dep
@@ -25,7 +25,7 @@ end
 def download_dep
     print "Some #{"tools".colorize.mode(:bold)} are missing, do you want to download them? (y/n): "
     if ["y", "Y"].includes? gets.to_s
-        system "./dltools.sh"
+        # system "./dltools.sh"
     end 
 end
 
@@ -36,7 +36,7 @@ if Dir["*.cia"].size.zero? && Dir["*.3ds"].size.zero?
 end
 
 def run_tool(name : String, args : Array(String)) : String
-    process = Process.new("./#{name}", args: args, output: Process::Redirect::Pipe)
+    process = Process.new("#{name}", args: args, output: Process::Redirect::Pipe)
     content = process.output.gets_to_end
     LOG.puts content
     exit_code = process.wait.exit_code
